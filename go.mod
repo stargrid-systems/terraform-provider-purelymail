@@ -1,4 +1,4 @@
-module github.com/hashicorp/terraform-provider-scaffolding-framework
+module github.com/stargrid-systems/terraform-provider-purelymail
 
 go 1.24.0
 
