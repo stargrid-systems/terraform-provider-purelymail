@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/oapi-codegen/oapi-codegen/HEAD/configuration-schema.json
+package: api
+output: purelymail.gen.go
+generate:
+  client: true
+  models: true
+  server-urls: true
+output-options:
+  response-type-suffix: Resp

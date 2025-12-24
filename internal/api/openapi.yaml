@@ -1,0 +1,721 @@
+openapi: 3.0.0
+info:
+  title: Purelymail API
+  version: 0.0.1
+  license:
+    name: Proprietary
+    url: https://purelymail.com
+  description: This is the Purelymail API specification.
+servers:
+- url: https://purelymail.com
+security:
+- ApiKeyAuth: []
+paths:
+  /api/v0/createUser:
+    post:
+      tags:
+      - User
+      summary: Creates a user
+      operationId: Create_User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /api/v0/deleteUser:
+    post:
+      tags:
+      - User
+      summary: Deletes a user
+      operationId: Delete_User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteUserRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /api/v0/listUser:
+    post:
+      tags:
+      - User
+      summary: Lists all users under your account.
+      operationId: List_Users
+      description: Lists all users under your account (up to 1000).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmptyRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserResponse'
+  /api/v0/modifyUser:
+    post:
+      tags:
+      - User
+      summary: Modifies a user
+      operationId: Modify_User
+      description: Modifies a user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModifyUserRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /api/v0/getUser:
+    post:
+      tags:
+      - User
+      summary: Gets a user
+      operationId: Get_User
+      description: Retrieves details of a user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetUserRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUserResponse'
+  /api/v0/upsertPasswordReset:
+    post:
+      tags:
+      - User
+      - User Password Reset
+      summary: Creates or updates a password reset method (either phone or email).
+      operationId: Create_or_update_Password_Reset_Method
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertPasswordResetRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /api/v0/deletePasswordReset:
+    post:
+      tags:
+      - User
+      - User Password Reset
+      summary: Deletes a password reset method.
+      operationId: Delete_Password_Reset_Method
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeletePasswordResetRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /api/v0/listPasswordReset:
+    post:
+      tags:
+      - User
+      - User Password Reset
+      summary: Lists all password reset methods for a user.
+      operationId: List_Password_Reset_Methods
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListPasswordResetRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListPasswordResetResponse'
+  /api/v0/createAppPassword:
+    post:
+      tags:
+      - User
+      summary: Creates an app password
+      operationId: Create_App_Password
+      description: Creates a new app password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAppPassword'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAppPasswordResponse'
+  /api/v0/deleteAppPassword:
+    post:
+      tags:
+      - User
+      summary: Deletes app password
+      operationId: Delete_App_Password
+      description: Deletes an app password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteAppPasswordRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /api/v0/createRoutingRule:
+    post:
+      tags:
+      - Routing
+      summary: Creates a new routing rule for a domain
+      operationId: Create_Routing_Rule
+      description: Routing rule must not have the same user/prefix as any other existing rules for the domain.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoutingRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /api/v0/deleteRoutingRule:
+    post:
+      tags:
+      - Routing
+      summary: Deletes an existing routing rule
+      operationId: Delete_Routing_Rule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteRoutingRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /api/v0/listRoutingRules:
+    post:
+      tags:
+      - Routing
+      summary: Lists all routing rules active under your account
+      operationId: List_Routing_Rules
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmptyRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRoutingResponse'
+  /api/v0/addDomain:
+    post:
+      tags:
+      - Domains
+      summary: Adds a domain.
+      operationId: Add_Domain
+      description: Adds a domain, assuming it passes DNS checks.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddDomainRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /api/v0/getOwnershipCode:
+    post:
+      tags:
+      - Domains
+      summary: Gets ownership code record
+      operationId: Get_Ownership_Code
+      description: Gets the DNS record value of the Purelymail ownership proof record, required to add a domain
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmptyRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOwnershipCodeResponse'
+  /api/v0/listDomains:
+    post:
+      tags:
+      - Domains
+      summary: Lists domains accessible to an account.
+      operationId: List_Domains
+      description: Lists domains accessible to an account, possibly including shared domains.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListDomainsRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDomainsResponse'
+  /api/v0/updateDomainSettings:
+    post:
+      tags:
+      - Domains
+      summary: Updates settings for a domain
+      operationId: Update_Domain_Settings
+      description: Updates settings for an existing owned domain.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDomainSettingsRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /api/v0/deleteDomain:
+    post:
+      tags:
+      - Domains
+      summary: Delete Domain
+      operationId: Delete_Domain
+      description: Deletes a domain, and all dependent settings and users.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteDomainRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyResponse'
+  /api/v0/checkAccountCredit:
+    post:
+      tags:
+      - Billing
+      summary: Returns current account credit.
+      operationId: Check_Account_Credit
+      description: Returns current account credit, as a BigDecimal string with precision 64.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmptyRequest'
+      responses:
+        '200':
+          description: Result of operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckCreditResponse'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Purelymail-Api-Token
+  schemas:
+    EmptyRequest:
+      type: object
+      properties: {}
+    EmptyResponse:
+      type: object
+      properties:
+        result:
+          type: object
+          properties: {}
+    CreateUserRequest:
+      type: object
+      properties:
+        userName:
+          type: string
+      required:
+      - userName
+    DeleteUserRequest:
+      type: object
+      properties:
+        userName:
+          type: string
+      required:
+      - userName
+    ListUserResponse:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            users:
+              type: array
+              items:
+                type: string
+    ModifyUserRequest:
+      type: object
+      properties:
+        userName:
+          type: string
+        newUserName:
+          type: string
+        newPassword:
+          type: string
+        enableSearchIndexing:
+          type: boolean
+        enablePasswordReset:
+          type: boolean
+        requireTwoFactorAuthentication:
+          type: boolean
+      required:
+      - userName
+    GetUserRequest:
+      type: object
+      properties:
+        userName:
+          type: string
+      required:
+      - userName
+    UserPasswordResetMethodType:
+      type: object
+    GetUserPasswordResetMethod:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/UserPasswordResetMethodType'
+        target:
+          type: string
+        description:
+          type: string
+        allowMfaReset:
+          type: boolean
+    GetUserResponse:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            enableSearchIndexing:
+              type: boolean
+            recoveryEnabled:
+              type: boolean
+            requireTwoFactorAuthentication:
+              type: boolean
+            enableSpamFiltering:
+              type: boolean
+            resetMethods:
+              type: array
+              items:
+                $ref: '#/components/schemas/GetUserPasswordResetMethod'
+    UpsertPasswordResetRequest:
+      type: object
+      properties:
+        userName:
+          type: string
+        existingTarget:
+          type: string
+        type:
+          type: string
+        target:
+          type: string
+        description:
+          type: string
+        allowMfaReset:
+          type: boolean
+      required:
+      - userName
+      - type
+      - target
+    DeletePasswordResetRequest:
+      type: object
+      properties:
+        userName:
+          type: string
+        target:
+          type: string
+      required:
+      - userName
+      - target
+    ListPasswordResetRequest:
+      type: object
+      properties:
+        userName:
+          type: string
+      required:
+      - userName
+    ListPasswordResetResponseItem:
+      type: object
+      properties:
+        type:
+          type: string
+        target:
+          type: string
+        description:
+          type: string
+        allowMfaReset:
+          type: boolean
+    ListPasswordResetResponse:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            users:
+              type: array
+              items:
+                $ref: '#/components/schemas/ListPasswordResetResponseItem'
+    CreateRoutingRequest:
+      type: object
+      properties:
+        domainName:
+          type: string
+        prefix:
+          type: boolean
+        matchUser:
+          type: string
+        targetAddresses:
+          type: array
+          items:
+            type: string
+        catchall:
+          type: boolean
+          default: false
+      required:
+      - domainName
+      - prefix
+      - matchUser
+      - targetAddresses
+    DeleteRoutingRequest:
+      type: object
+      properties:
+        routingRuleId:
+          type: integer
+          format: int32
+      required:
+      - routingRuleId
+    RoutingRule:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        domainName:
+          type: string
+        prefix:
+          type: boolean
+        matchUser:
+          type: string
+        targetAddresses:
+          type: array
+          items:
+            type: string
+        catchall:
+          type: boolean
+    ListRoutingResponse:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            rules:
+              type: array
+              items:
+                $ref: '#/components/schemas/RoutingRule'
+    AddDomainRequest:
+      type: object
+      properties:
+        domainName:
+          type: string
+      required:
+      - domainName
+    GetOwnershipCodeResponse:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            code:
+              type: string
+    ListDomainsRequest:
+      type: object
+      properties:
+        includeShared:
+          type: boolean
+          default: false
+    ApiDomainDnsSummary:
+      type: object
+      properties:
+        passesMx:
+          type: boolean
+        passesSpf:
+          type: boolean
+        passesDkim:
+          type: boolean
+        passesDmarc:
+          type: boolean
+    ApiDomainInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        allowAccountReset:
+          type: boolean
+        symbolicSubaddressing:
+          type: boolean
+        isShared:
+          type: boolean
+        dnsSummary:
+          $ref: '#/components/schemas/ApiDomainDnsSummary'
+    ListDomainsResponse:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            domains:
+              type: array
+              items:
+                $ref: '#/components/schemas/ApiDomainInfo'
+    UpdateDomainSettingsRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        allowAccountReset:
+          type: boolean
+        symbolicSubaddressing:
+          type: boolean
+        recheckDns:
+          type: boolean
+          default: false
+      required:
+      - name
+    DeleteDomainRequest:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+      - name
+    CreateAppPassword:
+      type: object
+      properties:
+        userHandle:
+          type: string
+        name:
+          type: string
+          default: ''
+      required:
+      - userHandle
+    CreateAppPasswordResponse:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            appPassword:
+              type: string
+    DeleteAppPasswordRequest:
+      type: object
+      properties:
+        userName:
+          type: string
+        appPassword:
+          type: string
+      required:
+      - userName
+      - appPassword
+    CheckCreditResponse:
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            credit:
+              type: string
+tags:
+- name: User
+  description: Operations related to users
+- name: User Password Reset
+  description: Operations related to users' password reset
+- name: Routing
+  description: Related to mail routing
+- name: Domains
+  description: Operations related to domains
+- name: Billing
+  description: Operations related to billing and credit
