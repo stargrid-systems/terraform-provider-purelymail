@@ -1,0 +1,8 @@
+{
+    "image": "debian:13",
+    // "remoteUser": "developer",
+    "features": {
+        "ghcr.io/stargrid-systems/devcontainer-features/go:0.1.0": {},
+        "ghcr.io/stargrid-systems/devcontainer-features/opentofu:0.1.0": {}
+    }
+}
