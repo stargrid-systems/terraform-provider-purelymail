@@ -15,45 +15,54 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/oapi-codegen/oapi-codegen/v2/pkg/securityprovider"
+
+	"github.com/stargrid-systems/terraform-provider-purelymail/internal/api"
 )
 
-// Ensure ScaffoldingProvider satisfies various provider interfaces.
-var _ provider.Provider = &ScaffoldingProvider{}
-var _ provider.ProviderWithFunctions = &ScaffoldingProvider{}
-var _ provider.ProviderWithEphemeralResources = &ScaffoldingProvider{}
-var _ provider.ProviderWithActions = &ScaffoldingProvider{}
+// Ensure PurelymailProvider satisfies various provider interfaces.
+var _ provider.Provider = &PurelymailProvider{}
+var _ provider.ProviderWithFunctions = &PurelymailProvider{}
+var _ provider.ProviderWithEphemeralResources = &PurelymailProvider{}
+var _ provider.ProviderWithActions = &PurelymailProvider{}
 
-// ScaffoldingProvider defines the provider implementation.
-type ScaffoldingProvider struct {
+// PurelymailProvider defines the provider implementation.
+type PurelymailProvider struct {
 	// version is set to the provider version on release, "dev" when the
 	// provider is built and ran locally, and "test" when running acceptance
 	// testing.
 	version string
 }
 
-// ScaffoldingProviderModel describes the provider data model.
-type ScaffoldingProviderModel struct {
+// PurelymailProviderModel describes the provider data model.
+type PurelymailProviderModel struct {
 	Endpoint types.String `tfsdk:"endpoint"`
+	ApiToken types.String `tfsdk:"api_token"`
 }
 
-func (p *ScaffoldingProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "scaffolding"
+func (p *PurelymailProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
+	resp.TypeName = "purelymail"
 	resp.Version = p.version
 }
 
-func (p *ScaffoldingProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+func (p *PurelymailProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
-				MarkdownDescription: "Example provider attribute",
+				MarkdownDescription: "API endpoint URL. Defaults to https://purelymail.com",
 				Optional:            true,
+			},
+			"api_token": schema.StringAttribute{
+				MarkdownDescription: "API authentication token. Required for API access.",
+				Optional:            true,
+				Sensitive:           true,
 			},
 		},
 	}
 }
 
-func (p *ScaffoldingProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	var data ScaffoldingProviderModel
+func (p *PurelymailProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+	var data PurelymailProviderModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 
@@ -62,47 +71,70 @@ func (p *ScaffoldingProvider) Configure(ctx context.Context, req provider.Config
 	}
 
 	// Configuration values are now available.
-	// if data.Endpoint.IsNull() { /* ... */ }
+	httpClient := http.DefaultClient
 
-	// Example client configuration for data sources and resources
-	client := http.DefaultClient
+	baseURL := api.ServerUrlHttpspurelymailCom
+	if !data.Endpoint.IsNull() && !data.Endpoint.IsUnknown() {
+		baseURL = data.Endpoint.ValueString()
+	}
+
+	// Build client with optional authentication
+	clientOpts := []api.ClientOption{
+		api.WithHTTPClient(httpClient),
+	}
+
+	if !data.ApiToken.IsNull() && !data.ApiToken.IsUnknown() {
+		apiToken := data.ApiToken.ValueString()
+		apiKeyProvider, err := securityprovider.NewSecurityProviderApiKey("header", "Purelymail-Api-Token", apiToken)
+		if err != nil {
+			resp.Diagnostics.AddError("Security Provider Error", err.Error())
+			return
+		}
+		clientOpts = append(clientOpts, api.WithRequestEditorFn(apiKeyProvider.Intercept))
+	}
+
+	client, err := api.NewClient(baseURL, clientOpts...)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Initialization Error", err.Error())
+		return
+	}
 	resp.DataSourceData = client
 	resp.ResourceData = client
+	resp.EphemeralResourceData = client
 }
 
-func (p *ScaffoldingProvider) Resources(ctx context.Context) []func() resource.Resource {
+func (p *PurelymailProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewExampleResource,
+		NewUserResource,
+		NewRoutingRuleResource,
+		NewAppPasswordResource,
+		NewDomainResource,
 	}
 }
 
-func (p *ScaffoldingProvider) EphemeralResources(ctx context.Context) []func() ephemeral.EphemeralResource {
+func (p *PurelymailProvider) EphemeralResources(ctx context.Context) []func() ephemeral.EphemeralResource {
 	return []func() ephemeral.EphemeralResource{
-		NewExampleEphemeralResource,
+		NewAppPasswordEphemeralResource,
 	}
 }
 
-func (p *ScaffoldingProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+func (p *PurelymailProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		NewExampleDataSource,
+		NewOwnershipProofDataSource,
 	}
 }
 
-func (p *ScaffoldingProvider) Functions(ctx context.Context) []func() function.Function {
-	return []func() function.Function{
-		NewExampleFunction,
-	}
+func (p *PurelymailProvider) Functions(ctx context.Context) []func() function.Function {
+	return []func() function.Function{}
 }
 
-func (p *ScaffoldingProvider) Actions(ctx context.Context) []func() action.Action {
-	return []func() action.Action{
-		NewExampleAction,
-	}
+func (p *PurelymailProvider) Actions(ctx context.Context) []func() action.Action {
+	return []func() action.Action{}
 }
 
 func New(version string) func() provider.Provider {
 	return func() provider.Provider {
-		return &ScaffoldingProvider{
+		return &PurelymailProvider{
 			version: version,
 		}
 	}
