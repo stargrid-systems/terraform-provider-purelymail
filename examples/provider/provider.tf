@@ -1,3 +1,4 @@
-provider "scaffolding" {
-  # example configuration here
+provider "purelymail" {
+  # Optional: override endpoint
+  # endpoint = "https://purelymail.com"
 }
