@@ -268,7 +268,7 @@ func (r *DomainResource) ImportState(ctx context.Context, req resource.ImportSta
 	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }
 
-// updateDomainSettings updates the domain settings via API
+// updateDomainSettings updates the domain settings via API.
 func (r *DomainResource) updateDomainSettings(ctx context.Context, data *DomainResourceModel) error {
 	updateReq := api.UpdateDomainSettingsRequest{
 		Name: data.Name.ValueString(),
@@ -302,7 +302,7 @@ func (r *DomainResource) updateDomainSettings(ctx context.Context, data *DomainR
 	return nil
 }
 
-// readDomain reads domain information from the API
+// readDomain reads domain information from the API.
 func (r *DomainResource) readDomain(ctx context.Context, data *DomainResourceModel) error {
 	includeShared := false
 	listReq := api.ListDomainsRequest{

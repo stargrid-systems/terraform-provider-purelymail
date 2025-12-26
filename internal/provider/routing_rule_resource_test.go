@@ -17,7 +17,7 @@ import (
 	"github.com/stargrid-systems/terraform-provider-purelymail/internal/api"
 )
 
-// mockRoutingRuleServer implements api.ServerInterface for testing
+// mockRoutingRuleServer implements api.ServerInterface for testing.
 type mockRoutingRuleServer struct {
 	mu     sync.Mutex
 	rules  map[int32]api.RoutingRule
@@ -63,7 +63,7 @@ func (m *mockRoutingRuleServer) CreateRoutingRule(w http.ResponseWriter, r *http
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	result := make(map[string]interface{})
-	json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
+	_ = json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
 }
 
 func (m *mockRoutingRuleServer) DeleteRoutingRule(w http.ResponseWriter, r *http.Request) {
@@ -81,7 +81,7 @@ func (m *mockRoutingRuleServer) DeleteRoutingRule(w http.ResponseWriter, r *http
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	result := make(map[string]interface{})
-	json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
+	_ = json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
 }
 
 func (m *mockRoutingRuleServer) ListRoutingRules(w http.ResponseWriter, r *http.Request) {
@@ -108,7 +108,7 @@ func (m *mockRoutingRuleServer) ListRoutingRules(w http.ResponseWriter, r *http.
 	}
 }
 
-// Implement remaining ServerInterface methods as no-ops
+// Implement remaining ServerInterface methods as no-ops.
 func (m *mockRoutingRuleServer) AddDomain(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "not implemented", http.StatusNotImplemented)
 }

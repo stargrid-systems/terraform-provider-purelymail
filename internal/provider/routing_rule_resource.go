@@ -300,7 +300,7 @@ func (r *RoutingRuleResource) ImportState(ctx context.Context, req resource.Impo
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
 }
 
-// readRoutingRule reads a routing rule from the API and updates the model
+// readRoutingRule reads a routing rule from the API and updates the model.
 func (r *RoutingRuleResource) readRoutingRule(ctx context.Context, data *RoutingRuleResourceModel) error {
 	httpResp, err := r.client.ListRoutingRules(ctx, api.EmptyRequest{})
 	if err != nil {

@@ -48,7 +48,7 @@ func TestAccUserResourceWith2FA(t *testing.T) {
 		case "/api/v0/createUser":
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"result":{}}`))
+			_, _ = w.Write([]byte(`{"result":{}}`))
 
 		case "/api/v0/modifyUser":
 			body, err := io.ReadAll(r.Body)
@@ -65,7 +65,7 @@ func TestAccUserResourceWith2FA(t *testing.T) {
 			}
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"result":{}}`))
+			_, _ = w.Write([]byte(`{"result":{}}`))
 
 		case "/api/v0/getUser":
 			w.Header().Set("Content-Type", "application/json")
@@ -73,7 +73,7 @@ func TestAccUserResourceWith2FA(t *testing.T) {
 			resp, _ := json.Marshal(map[string]interface{}{
 				"result": userState,
 			})
-			w.Write(resp)
+			_, _ = w.Write(resp)
 
 		case "/api/v0/listPasswordResetMethods":
 			w.Header().Set("Content-Type", "application/json")
@@ -83,7 +83,7 @@ func TestAccUserResourceWith2FA(t *testing.T) {
 					"users": passwordResetState,
 				},
 			})
-			w.Write(resp)
+			_, _ = w.Write(resp)
 
 		case "/api/v0/upsertPasswordReset":
 			body, err := io.ReadAll(r.Body)
@@ -91,7 +91,11 @@ func TestAccUserResourceWith2FA(t *testing.T) {
 				var reqBody map[string]interface{}
 				if err := json.Unmarshal(body, &reqBody); err == nil {
 					// Check if method already exists
-					target := reqBody["target"].(string)
+					target, ok := reqBody["target"].(string)
+					if !ok {
+						http.Error(w, "invalid target", http.StatusBadRequest)
+						return
+					}
 					found := false
 					for i, method := range passwordResetState {
 						if method["target"] == target {
@@ -107,14 +111,18 @@ func TestAccUserResourceWith2FA(t *testing.T) {
 			}
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"result":{}}`))
+			_, _ = w.Write([]byte(`{"result":{}}`))
 
 		case "/api/v0/deletePasswordReset":
 			body, err := io.ReadAll(r.Body)
 			if err == nil {
 				var reqBody map[string]interface{}
 				if err := json.Unmarshal(body, &reqBody); err == nil {
-					target := reqBody["target"].(string)
+					target, ok := reqBody["target"].(string)
+					if !ok {
+						http.Error(w, "invalid target", http.StatusBadRequest)
+						return
+					}
 					newState := []map[string]interface{}{}
 					for _, method := range passwordResetState {
 						if method["target"] != target {
@@ -126,13 +134,13 @@ func TestAccUserResourceWith2FA(t *testing.T) {
 			}
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"result":{}}`))
+			_, _ = w.Write([]byte(`{"result":{}}`))
 
 		case "/api/v0/deleteUser":
 			passwordResetState = []map[string]interface{}{}
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"result":{}}`))
+			_, _ = w.Write([]byte(`{"result":{}}`))
 
 		default:
 			http.Error(w, "Not found", http.StatusNotFound)
