@@ -25,13 +25,21 @@ resource "purelymail_user" "bob" {
   password_wo = "secure-password-456"
 }
 
-# Create a user with custom settings
+# Create a user with custom settings and password reset methods
 resource "purelymail_user" "charlie" {
-  user_name                         = "charlie"
-  password                          = "another-password-789"
-  enable_search_indexing            = true
-  enable_password_reset             = true
-  require_two_factor_authentication = false
+  user_name              = "charlie"
+  password               = "another-password-789"
+  enable_search_indexing = true
+
+  # Configure password reset methods
+  password_reset_methods = [
+    {
+      type            = "email"
+      target          = "charlie.backup@example.com"
+      description     = "Backup email"
+      allow_mfa_reset = true
+    }
+  ]
 }
 ```
 
@@ -44,16 +52,29 @@ resource "purelymail_user" "charlie" {
 
 ### Optional
 
-- `enable_password_reset` (Boolean) Whether to enable password reset methods for this user.
 - `enable_search_indexing` (Boolean) Whether to enable search indexing for this user.
 - `new_user_name` (String) New username to rename the user (write-only, only used during updates).
 - `password` (String, Sensitive) The user's password (write-only, only used during creation and updates, never returned).
+- `password_reset_methods` (Attributes List) Password reset methods for this user. At least one is required if two-factor authentication is enabled. (see [below for nested schema](#nestedatt--password_reset_methods))
 - `password_wo` (String, Sensitive) The user's password (write-only variant that remains in state, useful for tracking password changes).
-- `require_two_factor_authentication` (Boolean) Whether to require two-factor authentication for this user.
+- `require_two_factor_authentication` (Boolean) Whether to require two-factor authentication for this user. Note: At least one password reset method must be configured before this can be enabled.
 
 ### Read-Only
 
 - `id` (String) The user identifier (same as user_name).
+
+<a id="nestedatt--password_reset_methods"></a>
+### Nested Schema for `password_reset_methods`
+
+Required:
+
+- `target` (String) The target for the password reset method (email address or phone number).
+- `type` (String) The type of password reset method. Valid values: 'email', 'phone'.
+
+Optional:
+
+- `allow_mfa_reset` (Boolean) Whether this method can be used to reset multi-factor authentication.
+- `description` (String) An optional description for this password reset method.
 
 ## Import
 

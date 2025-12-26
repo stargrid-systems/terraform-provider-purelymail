@@ -47,6 +47,7 @@ func (p *PurelymailProvider) Metadata(ctx context.Context, req provider.Metadata
 
 func (p *PurelymailProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Terraform provider for managing Purelymail email resources",
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
 				MarkdownDescription: "API endpoint URL. Defaults to https://purelymail.com",
@@ -109,6 +110,7 @@ func (p *PurelymailProvider) Resources(ctx context.Context) []func() resource.Re
 		NewRoutingRuleResource,
 		NewAppPasswordResource,
 		NewDomainResource,
+		NewPasswordResetMethodResource,
 	}
 }
 
