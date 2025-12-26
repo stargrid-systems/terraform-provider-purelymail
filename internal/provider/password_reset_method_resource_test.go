@@ -89,7 +89,7 @@ resource "purelymail_password_reset_method" "test" {
 `, endpoint, userName, methodType, target, description, allowMfaReset)
 }
 
-// mockPasswordResetMethodServer implements api.ServerInterface for testing password reset methods
+// mockPasswordResetMethodServer implements api.ServerInterface for testing password reset methods.
 type mockPasswordResetMethodServer struct {
 	methods map[string]map[string]api.ListPasswordResetResponseItem // userName -> target -> method
 	mu      sync.Mutex
@@ -127,7 +127,7 @@ func (m *mockPasswordResetMethodServer) CreateOrUpdatePasswordResetMethod(w http
 	result := make(map[string]interface{})
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
+	_ = json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
 }
 
 func (m *mockPasswordResetMethodServer) DeletePasswordResetMethod(w http.ResponseWriter, r *http.Request) {
@@ -147,7 +147,7 @@ func (m *mockPasswordResetMethodServer) DeletePasswordResetMethod(w http.Respons
 	result := make(map[string]interface{})
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
+	_ = json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
 }
 
 func (m *mockPasswordResetMethodServer) ListPasswordResetMethods(w http.ResponseWriter, r *http.Request) {
@@ -178,10 +178,10 @@ func (m *mockPasswordResetMethodServer) ListPasswordResetMethods(w http.Response
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
-// Implement remaining ServerInterface methods as no-ops
+// Implement remaining ServerInterface methods as no-ops.
 func (m *mockPasswordResetMethodServer) AddDomain(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "not implemented", http.StatusNotImplemented)
 }

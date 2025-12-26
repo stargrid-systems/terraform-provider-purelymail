@@ -291,7 +291,7 @@ func (r *PasswordResetMethodResource) ImportState(ctx context.Context, req resou
 }
 
 // readPasswordResetMethod reads the password reset method from the API
-// Returns true if found, false if not found (but no error)
+// Returns true if found, false if not found (but no error).
 func (r *PasswordResetMethodResource) readPasswordResetMethod(ctx context.Context, data *PasswordResetMethodResourceModel) (bool, error) {
 	httpResp, err := r.client.ListPasswordResetMethods(ctx, api.ListPasswordResetRequest{
 		UserName: data.UserName.ValueString(),

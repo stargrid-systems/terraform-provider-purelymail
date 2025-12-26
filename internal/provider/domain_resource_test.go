@@ -77,7 +77,7 @@ resource "purelymail_domain" "test" {
 `, endpoint, domainName, allowAccountReset, symbolicSubaddressing)
 }
 
-// mockDomainServer implements api.ServerInterface for testing domains
+// mockDomainServer implements api.ServerInterface for testing domains.
 type mockDomainServer struct {
 	domains map[string]api.ApiDomainInfo
 	mu      sync.Mutex
@@ -124,7 +124,7 @@ func (m *mockDomainServer) AddDomain(w http.ResponseWriter, r *http.Request) {
 	result := make(map[string]interface{})
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
+	_ = json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
 }
 
 func (m *mockDomainServer) DeleteDomain(w http.ResponseWriter, r *http.Request) {
@@ -142,7 +142,7 @@ func (m *mockDomainServer) DeleteDomain(w http.ResponseWriter, r *http.Request) 
 	result := make(map[string]interface{})
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
+	_ = json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
 }
 
 func (m *mockDomainServer) UpdateDomainSettings(w http.ResponseWriter, r *http.Request) {
@@ -190,7 +190,7 @@ func (m *mockDomainServer) UpdateDomainSettings(w http.ResponseWriter, r *http.R
 	result := make(map[string]interface{})
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
+	_ = json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
 }
 
 func (m *mockDomainServer) ListDomains(w http.ResponseWriter, r *http.Request) {
@@ -213,10 +213,10 @@ func (m *mockDomainServer) ListDomains(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
-// Implement remaining ServerInterface methods as no-ops
+// Implement remaining ServerInterface methods as no-ops.
 func (m *mockDomainServer) CheckAccountCredit(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "not implemented", http.StatusNotImplemented)
 }

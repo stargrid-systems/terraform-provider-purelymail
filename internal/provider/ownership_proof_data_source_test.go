@@ -26,7 +26,7 @@ func TestAccOwnershipProofDataSource(t *testing.T) {
 		// Return a mock ownership code response
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{
+		_, _ = w.Write([]byte(`{
 			"result": {
 				"code": "v=purelymail1 test-ownership-code-12345"
 			}

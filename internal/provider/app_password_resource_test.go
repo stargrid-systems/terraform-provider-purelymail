@@ -18,7 +18,7 @@ import (
 	"github.com/stargrid-systems/terraform-provider-purelymail/internal/api"
 )
 
-// mockAppPasswordServer implements api.ServerInterface for testing
+// mockAppPasswordServer implements api.ServerInterface for testing.
 type mockAppPasswordServer struct {
 	mu              sync.Mutex
 	passwords       map[string]string // appPassword -> userHandle
@@ -57,7 +57,7 @@ func (m *mockAppPasswordServer) CreateAppPassword(w http.ResponseWriter, r *http
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(result)
+	_ = json.NewEncoder(w).Encode(result)
 }
 
 func (m *mockAppPasswordServer) DeleteAppPassword(w http.ResponseWriter, r *http.Request) {
@@ -75,10 +75,10 @@ func (m *mockAppPasswordServer) DeleteAppPassword(w http.ResponseWriter, r *http
 	result := make(map[string]interface{})
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
+	_ = json.NewEncoder(w).Encode(api.EmptyResponse{Result: &result})
 }
 
-// Implement remaining ServerInterface methods as no-ops
+// Implement remaining ServerInterface methods as no-ops.
 func (m *mockAppPasswordServer) AddDomain(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "not implemented", http.StatusNotImplemented)
 }

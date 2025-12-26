@@ -38,7 +38,7 @@ func TestAccUserResource(t *testing.T) {
 		case "/api/v0/createUser":
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"result":{}}`))
+			_, _ = w.Write([]byte(`{"result":{}}`))
 
 		case "/api/v0/modifyUser":
 			// Parse request body to capture modifications
@@ -63,7 +63,7 @@ func TestAccUserResource(t *testing.T) {
 			}
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"result":{}}`))
+			_, _ = w.Write([]byte(`{"result":{}}`))
 
 		case "/api/v0/getUser":
 			w.Header().Set("Content-Type", "application/json")
@@ -71,12 +71,12 @@ func TestAccUserResource(t *testing.T) {
 			resp, _ := json.Marshal(map[string]interface{}{
 				"result": userState,
 			})
-			w.Write(resp)
+			_, _ = w.Write(resp)
 
 		case "/api/v0/deleteUser":
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"result":{}}`))
+			_, _ = w.Write([]byte(`{"result":{}}`))
 
 		default:
 			http.Error(w, "Not found", http.StatusNotFound)
@@ -160,7 +160,7 @@ func TestAccUserResourcePasswordWo(t *testing.T) {
 		case "/api/v0/createUser":
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"result":{}}`))
+			_, _ = w.Write([]byte(`{"result":{}}`))
 
 		case "/api/v0/modifyUser":
 			// Parse request body to capture modifications
@@ -185,7 +185,7 @@ func TestAccUserResourcePasswordWo(t *testing.T) {
 			}
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"result":{}}`))
+			_, _ = w.Write([]byte(`{"result":{}}`))
 
 		case "/api/v0/getUser":
 			w.Header().Set("Content-Type", "application/json")
@@ -193,12 +193,12 @@ func TestAccUserResourcePasswordWo(t *testing.T) {
 			resp, _ := json.Marshal(map[string]interface{}{
 				"result": userState,
 			})
-			w.Write(resp)
+			_, _ = w.Write(resp)
 
 		case "/api/v0/deleteUser":
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"result":{}}`))
+			_, _ = w.Write([]byte(`{"result":{}}`))
 
 		default:
 			http.Error(w, "Not found", http.StatusNotFound)

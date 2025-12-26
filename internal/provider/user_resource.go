@@ -547,7 +547,7 @@ func (r *UserResource) ImportState(ctx context.Context, req resource.ImportState
 	resource.ImportStatePassthroughID(ctx, path.Root("user_name"), req, resp)
 }
 
-// Helper functions
+// Helper functions.
 func valueStringPtr(v types.String) *string {
 	if v.IsNull() || v.IsUnknown() {
 		return nil
@@ -564,8 +564,8 @@ func valueBoolPtr(v types.Bool) *bool {
 	return &b
 }
 
-// readUser reads the user data from the API including password reset methods
-// Returns (found bool, error)
+// readUser reads the user data from the API including password reset methods.
+// Returns (found bool, error).
 func (r *UserResource) readUser(ctx context.Context, data *UserResourceModel) (bool, error) {
 	// Read user from API
 	httpResp, err := r.client.GetUser(ctx, api.GetUserJSONRequestBody{
