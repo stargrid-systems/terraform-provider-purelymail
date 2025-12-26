@@ -1,0 +1,6 @@
+# Copy this file to terraform.tfvars and fill in your actual values
+# Add terraform.tfvars to .gitignore to avoid committing secrets
+
+purelymail_api_token = "your-purelymail-api-token-here"
+admin_password       = "secure-admin-password"
+sales_password       = "secure-sales-password"
