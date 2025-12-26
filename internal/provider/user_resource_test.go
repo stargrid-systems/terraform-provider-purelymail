@@ -5,84 +5,24 @@ package provider
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
 	"github.com/hashicorp/terraform-plugin-testing/statecheck"
 	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
+	"github.com/stargrid-systems/terraform-provider-purelymail/internal/api"
 )
 
 func TestAccUserResource(t *testing.T) {
-	// Track user state for mock API responses
-	userState := map[string]interface{}{
-		"enableSearchIndexing":           true,
-		"recoveryEnabled":                false,
-		"requireTwoFactorAuthentication": false,
-		"enableSpamFiltering":            true,
-	}
-
-	// Create a mock API server
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Verify API token
-		if r.Header.Get("Purelymail-Api-Token") == "" {
-			http.Error(w, "Missing API token", http.StatusUnauthorized)
-			return
-		}
-
-		// Route to appropriate handler
-		switch r.RequestURI {
-		case "/api/v0/createUser":
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write([]byte(`{"result":{}}`))
-
-		case "/api/v0/modifyUser":
-			// Parse request body to capture modifications
-			body, err := io.ReadAll(r.Body)
-			if err == nil {
-				var reqBody map[string]interface{}
-				if err := json.Unmarshal(body, &reqBody); err == nil {
-					// Update tracked state based on request
-					if v, ok := reqBody["enableSearchIndexing"]; ok {
-						userState["enableSearchIndexing"] = v
-					}
-					if v, ok := reqBody["enablePasswordReset"]; ok {
-						userState["recoveryEnabled"] = v
-					}
-					if v, ok := reqBody["requireTwoFactorAuthentication"]; ok {
-						userState["requireTwoFactorAuthentication"] = v
-					}
-					if v, ok := reqBody["enableSpamFiltering"]; ok {
-						userState["enableSpamFiltering"] = v
-					}
-				}
-			}
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write([]byte(`{"result":{}}`))
-
-		case "/api/v0/getUser":
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			resp, _ := json.Marshal(map[string]interface{}{
-				"result": userState,
-			})
-			_, _ = w.Write(resp)
-
-		case "/api/v0/deleteUser":
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write([]byte(`{"result":{}}`))
-
-		default:
-			http.Error(w, "Not found", http.StatusNotFound)
-		}
-	}))
-	defer server.Close()
+	// Create mock server using generated ServerInterface
+	mockServer := newMockUserServer()
+	handler := api.Handler(mockServer)
+	ts := httptest.NewServer(handler)
+	defer ts.Close()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -90,7 +30,7 @@ func TestAccUserResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: testAccUserResourceConfig(server.URL),
+				Config: testAccUserResourceConfig(ts.URL),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue("purelymail_user.test", tfjsonpath.New("user_name"), knownvalue.StringExact("alice")),
 					statecheck.ExpectKnownValue("purelymail_user.test", tfjsonpath.New("enable_search_indexing"), knownvalue.Bool(true)),
@@ -99,7 +39,7 @@ func TestAccUserResource(t *testing.T) {
 			},
 			// Update and Read testing
 			{
-				Config: testAccUserResourceConfigUpdated(server.URL),
+				Config: testAccUserResourceConfigUpdated(ts.URL),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue("purelymail_user.test", tfjsonpath.New("user_name"), knownvalue.StringExact("alice")),
 					statecheck.ExpectKnownValue("purelymail_user.test", tfjsonpath.New("enable_search_indexing"), knownvalue.Bool(false)),
@@ -108,6 +48,153 @@ func TestAccUserResource(t *testing.T) {
 			// Delete testing automatically occurs
 		},
 	})
+}
+
+// mockUserServer implements api.ServerInterface for testing users.
+type mockUserServer struct {
+	mu        sync.Mutex
+	userState map[string]interface{}
+}
+
+func newMockUserServer() *mockUserServer {
+	return &mockUserServer{
+		userState: map[string]interface{}{
+			"enableSearchIndexing":           true,
+			"recoveryEnabled":                false,
+			"requireTwoFactorAuthentication": false,
+			"enableSpamFiltering":            true,
+		},
+	}
+}
+
+func (m *mockUserServer) CreateUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(api.EmptyResponse{Result: &map[string]interface{}{}})
+}
+
+func (m *mockUserServer) ModifyUser(w http.ResponseWriter, r *http.Request) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	var req api.ModifyUserRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Update tracked state based on request
+	if req.EnableSearchIndexing != nil {
+		m.userState["enableSearchIndexing"] = *req.EnableSearchIndexing
+	}
+	if req.EnablePasswordReset != nil {
+		m.userState["recoveryEnabled"] = *req.EnablePasswordReset
+	}
+	if req.RequireTwoFactorAuthentication != nil {
+		m.userState["requireTwoFactorAuthentication"] = *req.RequireTwoFactorAuthentication
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(api.EmptyResponse{Result: &map[string]interface{}{}})
+}
+
+func (m *mockUserServer) GetUser(w http.ResponseWriter, r *http.Request) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	enableSearchIndexing, _ := m.userState["enableSearchIndexing"].(bool)
+	recoveryEnabled, _ := m.userState["recoveryEnabled"].(bool)
+	requireTwoFactorAuthentication, _ := m.userState["requireTwoFactorAuthentication"].(bool)
+	enableSpamFiltering, _ := m.userState["enableSpamFiltering"].(bool)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	resp := api.GetUserResponse{
+		Result: &struct {
+			EnableSearchIndexing           *bool                             `json:"enableSearchIndexing,omitempty"`
+			EnableSpamFiltering            *bool                             `json:"enableSpamFiltering,omitempty"`
+			RecoveryEnabled                *bool                             `json:"recoveryEnabled,omitempty"`
+			RequireTwoFactorAuthentication *bool                             `json:"requireTwoFactorAuthentication,omitempty"`
+			ResetMethods                   *[]api.GetUserPasswordResetMethod `json:"resetMethods,omitempty"`
+		}{
+			EnableSearchIndexing:           &enableSearchIndexing,
+			EnableSpamFiltering:            &enableSpamFiltering,
+			RecoveryEnabled:                &recoveryEnabled,
+			RequireTwoFactorAuthentication: &requireTwoFactorAuthentication,
+		},
+	}
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+func (m *mockUserServer) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(api.EmptyResponse{Result: &map[string]interface{}{}})
+}
+
+// Implement remaining ServerInterface methods as no-ops.
+func (m *mockUserServer) AddDomain(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (m *mockUserServer) CheckAccountCredit(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (m *mockUserServer) CreateAppPassword(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (m *mockUserServer) CreateRoutingRule(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (m *mockUserServer) DeleteAppPassword(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (m *mockUserServer) DeleteDomain(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (m *mockUserServer) DeletePasswordResetMethod(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (m *mockUserServer) DeleteRoutingRule(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (m *mockUserServer) GetOwnershipCode(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (m *mockUserServer) ListDomains(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (m *mockUserServer) ListPasswordResetMethods(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (m *mockUserServer) ListRoutingRules(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (m *mockUserServer) ListUsers(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (m *mockUserServer) UpdateDomainSettings(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "not implemented", http.StatusNotImplemented)
+}
+
+func (m *mockUserServer) CreateOrUpdatePasswordResetMethod(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "not implemented", http.StatusNotImplemented)
 }
 
 func testAccUserResourceConfig(endpoint string) string {
@@ -139,72 +226,11 @@ resource "purelymail_user" "test" {
 }
 
 func TestAccUserResourcePasswordWo(t *testing.T) {
-	// Track user state for mock API responses
-	userState := map[string]interface{}{
-		"enableSearchIndexing":           true,
-		"recoveryEnabled":                false,
-		"requireTwoFactorAuthentication": false,
-		"enableSpamFiltering":            true,
-	}
-
-	// Create a mock API server
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Verify API token
-		if r.Header.Get("Purelymail-Api-Token") == "" {
-			http.Error(w, "Missing API token", http.StatusUnauthorized)
-			return
-		}
-
-		// Route to appropriate handler
-		switch r.RequestURI {
-		case "/api/v0/createUser":
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write([]byte(`{"result":{}}`))
-
-		case "/api/v0/modifyUser":
-			// Parse request body to capture modifications
-			body, err := io.ReadAll(r.Body)
-			if err == nil {
-				var reqBody map[string]interface{}
-				if err := json.Unmarshal(body, &reqBody); err == nil {
-					// Update tracked state based on request
-					if v, ok := reqBody["enableSearchIndexing"]; ok {
-						userState["enableSearchIndexing"] = v
-					}
-					if v, ok := reqBody["enablePasswordReset"]; ok {
-						userState["recoveryEnabled"] = v
-					}
-					if v, ok := reqBody["requireTwoFactorAuthentication"]; ok {
-						userState["requireTwoFactorAuthentication"] = v
-					}
-					if v, ok := reqBody["enableSpamFiltering"]; ok {
-						userState["enableSpamFiltering"] = v
-					}
-				}
-			}
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write([]byte(`{"result":{}}`))
-
-		case "/api/v0/getUser":
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			resp, _ := json.Marshal(map[string]interface{}{
-				"result": userState,
-			})
-			_, _ = w.Write(resp)
-
-		case "/api/v0/deleteUser":
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write([]byte(`{"result":{}}`))
-
-		default:
-			http.Error(w, "Not found", http.StatusNotFound)
-		}
-	}))
-	defer server.Close()
+	// Create mock server using generated ServerInterface
+	mockServer := newMockUserServer()
+	handler := api.Handler(mockServer)
+	ts := httptest.NewServer(handler)
+	defer ts.Close()
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -212,7 +238,7 @@ func TestAccUserResourcePasswordWo(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create with password_wo
 			{
-				Config: testAccUserResourceConfigPasswordWo(server.URL),
+				Config: testAccUserResourceConfigPasswordWo(ts.URL),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue("purelymail_user.test", tfjsonpath.New("user_name"), knownvalue.StringExact("bob")),
 					statecheck.ExpectKnownValue("purelymail_user.test", tfjsonpath.New("id"), knownvalue.StringExact("bob")),
@@ -220,7 +246,7 @@ func TestAccUserResourcePasswordWo(t *testing.T) {
 			},
 			// Update with password_wo
 			{
-				Config: testAccUserResourceConfigPasswordWoUpdated(server.URL),
+				Config: testAccUserResourceConfigPasswordWoUpdated(ts.URL),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue("purelymail_user.test", tfjsonpath.New("user_name"), knownvalue.StringExact("bob")),
 				},
