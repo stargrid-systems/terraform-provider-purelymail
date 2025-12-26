@@ -43,7 +43,7 @@ jobs:
         go-version-file: 'go.mod'
         cache: true
     # We need the latest version of OpenTofu for our documentation generation to use
-    - uses: opentofu/setup-opentofu@v1.0.7
+    - uses: opentofu/setup-opentofu@e95ccdd20623115bfd7d47df14a3250d6066a9d0 # v1.0.7
       with:
         tofu_wrapper: false
     - run: make generate
@@ -73,7 +73,7 @@ jobs:
       with:
         go-version-file: 'go.mod'
         cache: true
-    - uses: opentofu/setup-opentofu@v1.0.7
+    - uses: opentofu/setup-opentofu@e95ccdd20623115bfd7d47df14a3250d6066a9d0 # v1.0.7
       with:
         tofu_version: ${{ matrix.opentofu }}
         tofu_wrapper: false
