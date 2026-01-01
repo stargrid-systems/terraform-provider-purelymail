@@ -14,7 +14,7 @@ Manages a password reset method for a Purelymail user. At least one password res
 
 ```terraform
 resource "purelymail_password_reset_method" "example" {
-  user_name       = "alice"
+  user_name       = "alice@example.com"
   type            = "email"
   target          = "alice@recovery.example.com"
   description     = "Recovery email for Alice"
@@ -29,7 +29,7 @@ resource "purelymail_password_reset_method" "example" {
 
 - `target` (String) The target for the password reset method (email address or phone number).
 - `type` (String) The type of password reset method (e.g., 'email' or 'phone').
-- `user_name` (String) The username this password reset method belongs to.
+- `user_name` (String) The full email address this password reset method belongs to (e.g., 'alice@example.com').
 
 ### Optional
 

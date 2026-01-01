@@ -62,7 +62,7 @@ func (r *UserResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 
 		Attributes: map[string]schema.Attribute{
 			"user_name": schema.StringAttribute{
-				MarkdownDescription: "The username. This is the local part of the email address (e.g., 'alice' for 'alice@example.com'). Cannot be changed after creation.",
+				MarkdownDescription: "The full email address like 'alice@example.com'. Cannot be changed after creation.",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),

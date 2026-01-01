@@ -8,7 +8,7 @@
 # All in a single apply!
 
 resource "purelymail_user" "alice" {
-  user_name              = "alice"
+  user_name              = "alice@example.com"
   password_wo            = "initial-secure-password"
   enable_search_indexing = true
 

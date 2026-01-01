@@ -15,19 +15,19 @@ Manages a Purelymail user account.
 ```terraform
 # Create a user with password
 resource "purelymail_user" "alice" {
-  user_name = "alice"
+  user_name = "alice@example.com"
   password  = "initial-password-123"
 }
 
 # Create a user with password_wo (remains in state for change tracking)
 resource "purelymail_user" "bob" {
-  user_name   = "bob"
+  user_name   = "bob@example.com"
   password_wo = "secure-password-456"
 }
 
 # Create a user with custom settings and password reset methods
 resource "purelymail_user" "charlie" {
-  user_name              = "charlie"
+  user_name              = "charlie@example.com"
   password               = "another-password-789"
   enable_search_indexing = true
 
@@ -48,7 +48,7 @@ resource "purelymail_user" "charlie" {
 
 ### Required
 
-- `user_name` (String) The username. This is the local part of the email address (e.g., 'alice' for 'alice@example.com'). Cannot be changed after creation.
+- `user_name` (String) The full email address like 'alice@example.com'. Cannot be changed after creation.
 
 ### Optional
 
@@ -83,5 +83,5 @@ Import is supported using the following syntax:
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
-terraform import purelymail_user.sally "sally"
+terraform import purelymail_user.sally "sally@example.com"
 ```

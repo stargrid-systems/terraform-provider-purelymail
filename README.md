@@ -51,7 +51,7 @@ ephemeral "random_password" "alice_password" {
 # Create a user with 2FA and password reset methods
 resource "purelymail_user" "alice" {
   user_name                         = "alice@example.com"
-  password_wo                       = ephemeral.random_password.result
+  password_wo                       = ephemeral.alice_password.result
   enable_search_indexing            = true
   require_two_factor_authentication = true
 

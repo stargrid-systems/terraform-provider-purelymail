@@ -52,7 +52,7 @@ func (r *PasswordResetMethodResource) Schema(ctx context.Context, req resource.S
 
 		Attributes: map[string]schema.Attribute{
 			"user_name": schema.StringAttribute{
-				MarkdownDescription: "The username this password reset method belongs to.",
+				MarkdownDescription: "The full email address this password reset method belongs to (e.g., 'alice@example.com').",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),

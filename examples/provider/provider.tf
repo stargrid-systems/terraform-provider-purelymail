@@ -26,16 +26,17 @@ resource "purelymail_user" "alice" {
   ]
 }
 
-# Create a routing rule
+# Create a routing rule - catch-all that routes all mail to alice
 resource "purelymail_routing_rule" "catch_all" {
   domain_name      = purelymail_domain.example.name
+  prefix           = false
   match_user       = "*"
-  hostname         = purelymail_domain.example.name
   target_addresses = ["alice@example.com"]
+  catchall         = true
 }
 
-# Generate an app password
+# Generate an app password for the user
 resource "purelymail_app_password" "mobile" {
-  user_name   = purelymail_user.alice.user_name
-  description = "Mobile email client"
+  user_handle = "alice@example.com"
+  name        = "Mobile email client"
 }
