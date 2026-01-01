@@ -5,7 +5,7 @@ provider "purelymail" {
 
 # Create a domain
 resource "purelymail_domain" "example" {
-  domain_name = "example.com"
+  name = "example.com"
 }
 
 # Create a user with 2FA enabled
@@ -28,9 +28,9 @@ resource "purelymail_user" "alice" {
 
 # Create a routing rule
 resource "purelymail_routing_rule" "catch_all" {
-  domain_name      = purelymail_domain.example.domain_name
+  domain_name      = purelymail_domain.example.name
   match_user       = "*"
-  hostname         = purelymail_domain.example.domain_name
+  hostname         = purelymail_domain.example.name
   target_addresses = ["alice@example.com"]
 }
 

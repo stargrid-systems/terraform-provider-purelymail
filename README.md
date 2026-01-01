@@ -67,7 +67,7 @@ resource "purelymail_user" "alice" {
 
 # Add a domain
 resource "purelymail_domain" "example" {
-  domain_name = "example.com"
+  name = "example.com"
 }
 ```
 
