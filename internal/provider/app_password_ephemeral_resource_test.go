@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 	"github.com/stargrid-systems/terraform-provider-purelymail/internal/api"
+	"github.com/stargrid-systems/terraform-provider-purelymail/internal/api/mock"
 )
 
 func TestAccAppPasswordEphemeralResource(t *testing.T) {
@@ -17,7 +18,7 @@ func TestAccAppPasswordEphemeralResource(t *testing.T) {
 	}
 
 	// Create mock server using generated ServerInterface
-	mockServer := newMockAppPasswordServer()
+	mockServer := mock.NewServer()
 	handler := api.Handler(mockServer)
 
 	// Wrap with auth check middleware
