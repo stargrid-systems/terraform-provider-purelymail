@@ -10,7 +10,7 @@ resource "purelymail_domain" "example" {
 
 # Create a user with 2FA enabled
 resource "purelymail_user" "alice" {
-  user_name                         = "alice"
+  user_name                         = "alice@example.com"
   password_wo                       = var.alice_password
   enable_search_indexing            = true
   require_two_factor_authentication = true
