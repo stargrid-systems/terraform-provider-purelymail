@@ -73,14 +73,15 @@ func (r *UserResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 				Optional:            true,
 			},
 			"password": schema.StringAttribute{
-				MarkdownDescription: "The user's password (write-only, only used during creation and updates, never returned).",
+				MarkdownDescription: "The user's password. This remains in state (sensitive but visible in state files). Useful for tracking password changes.",
 				Optional:            true,
 				Sensitive:           true,
 			},
 			"password_wo": schema.StringAttribute{
-				MarkdownDescription: "The user's password (write-only variant that remains in state, useful for tracking password changes).",
+				MarkdownDescription: "The user's password (write-only, never stored in state, more secure but password changes cannot be detected by Terraform).",
 				Optional:            true,
 				Sensitive:           true,
+				WriteOnly:           true,
 			},
 			"enable_search_indexing": schema.BoolAttribute{
 				MarkdownDescription: "Whether to enable search indexing for this user.",
@@ -269,8 +270,8 @@ func (r *UserResource) Create(ctx context.Context, req resource.CreateRequest, r
 		resp.Diagnostics.AddWarning("Read Warning", fmt.Sprintf("Created user but unable to read back: %s", err))
 	}
 
-	// Clear write-only fields (except password_wo which stays in state)
-	data.Password = types.StringNull()
+	// Clear write-only fields (password_wo is write-only and should not be stored)
+	data.PasswordWo = types.StringNull()
 	data.NewUserName = types.StringNull()
 
 	tflog.Trace(ctx, "created purelymail_user resource")
@@ -299,8 +300,8 @@ func (r *UserResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	// Clear write-only fields (except password_wo which stays in state)
-	data.Password = types.StringNull()
+	// Clear write-only fields (password_wo is write-only and should not be stored)
+	data.PasswordWo = types.StringNull()
 	data.NewUserName = types.StringNull()
 
 	tflog.Trace(ctx, "read purelymail_user resource")
@@ -502,8 +503,8 @@ func (r *UserResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		resp.Diagnostics.AddWarning("Read Warning", fmt.Sprintf("Updated user but unable to read back: %s", err))
 	}
 
-	// Clear write-only fields (except password_wo which stays in state)
-	data.Password = types.StringNull()
+	// Clear write-only fields (password_wo is write-only and should not be stored)
+	data.PasswordWo = types.StringNull()
 	data.NewUserName = types.StringNull()
 
 	tflog.Trace(ctx, "updated purelymail_user resource")

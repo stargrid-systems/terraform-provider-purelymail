@@ -52,11 +52,13 @@ resource "purelymail_user" "charlie" {
 
 ### Optional
 
+> **NOTE**: [Write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) are supported in Terraform 1.11 and later.
+
 - `enable_search_indexing` (Boolean) Whether to enable search indexing for this user.
 - `new_user_name` (String) New username to rename the user (write-only, only used during updates).
-- `password` (String, Sensitive) The user's password (write-only, only used during creation and updates, never returned).
+- `password` (String, Sensitive) The user's password. This remains in state (sensitive but visible in state files). Useful for tracking password changes.
 - `password_reset_methods` (Attributes List) Password reset methods for this user. At least one is required if two-factor authentication is enabled. (see [below for nested schema](#nestedatt--password_reset_methods))
-- `password_wo` (String, Sensitive) The user's password (write-only variant that remains in state, useful for tracking password changes).
+- `password_wo` (String, Sensitive, [Write-only](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments)) The user's password (write-only, never stored in state, more secure but password changes cannot be detected by Terraform).
 - `require_two_factor_authentication` (Boolean) Whether to require two-factor authentication for this user. Note: At least one password reset method must be configured before this can be enabled.
 
 ### Read-Only
