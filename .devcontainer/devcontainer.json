@@ -3,6 +3,6 @@
     // "remoteUser": "developer",
     "features": {
         "ghcr.io/stargrid-systems/devcontainer-features/go:0.2.1": {},
-        "ghcr.io/stargrid-systems/devcontainer-features/opentofu:0.4.1": {}
+        "ghcr.io/stargrid-systems/devcontainer-features/opentofu:0.5.0": {}
     }
 }
