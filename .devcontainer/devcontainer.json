@@ -1,5 +1,5 @@
 {
-    "image": "debian:13",
+    "image": "debian:trixie-20260623",
     // "remoteUser": "developer",
     "features": {
         "ghcr.io/stargrid-systems/devcontainer-features/go:0.2.1": {},
